@@ -28,9 +28,9 @@ esac
 
 echo "Adding project sources:"
 root="$projname/$rootdir"
-ln -s $GITHUB_WORKSPACE "$isa_base/src/$root"
+ln -s "$GITHUB_WORKSPACE/$root" "$isa_base/src/$projname"
 cd "$isa_base"
-echo "Adding root: src/$root"
-echo "src/$root" >> ROOTS
-echo "building with: ./bin/isabelle build -b \"$session\""
+echo "Adding root: src/$projname"
+echo "src/$projname" >> ROOTS
+echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
