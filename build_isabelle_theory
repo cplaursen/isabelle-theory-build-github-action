@@ -8,7 +8,7 @@ rootdir="$2"
 session="$3"
 
 if [ "x$session" == "x" ]; then
-    session=projname
+    session=$projname
 fi
 
 echo "Fetching Isabelle:"
@@ -26,10 +26,10 @@ case $isa_ver in
 esac
 
 
-echo projname = "$projname"
-echo rootdir = "$rootdir"
-echo session = "$session"
-echo "workspace =" "$GITHUB_WORKSPACE"
+#echo projname = "$projname"
+#echo rootdir = "$rootdir"
+#echo session = "$session"
+#echo "workspace =" "$GITHUB_WORKSPACE"
 
 echo "Adding project sources:"
 echo "list workspace"
