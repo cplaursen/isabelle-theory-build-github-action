@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-echo "Environment is:"
-env
+echo "$1"
+echo "$2"
+pwd
+ls
+
 #export PROJECTNAME=$(basename $(pwd))
 #echo "Project name is $PROJECT_NAME"
 #

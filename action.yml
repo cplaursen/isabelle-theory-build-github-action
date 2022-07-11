@@ -4,6 +4,9 @@ inputs:
   isabelle-version:
     description: 'Version of Isabelle to build with, currently only `2021-1` is supported'
     required: true
+  theory-root:
+    description: 'Path to the root of the theory. This defaults to the root of the repository.'
+    default: ''
 #outputs: # TODO
 #  heap-image:
 #    description: "path to the built image"
@@ -13,6 +16,6 @@ runs:
   steps:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    - run: build_isabelle_theory
+    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}"
       shell: bash
 
