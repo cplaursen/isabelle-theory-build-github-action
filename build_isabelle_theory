@@ -28,6 +28,11 @@ esac
 
 echo "Adding project sources:"
 root="$projname/$rootdir"
+echo "list workspace"
+ls "$GITHUB_WORKSPACE"
+echo "list rootdir"
+ls "$GITHUB_WORKSPACE/$root"
+echo "Adding project sources:"
 ln -s "$GITHUB_WORKSPACE/$root" "$isa_base/src/$projname"
 cd "$isa_base"
 echo "Adding root: src/$projname"
