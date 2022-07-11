@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
+set -e
+
 projname=$(basename $(pwd))
 isa_ver="$1"
 rootdir="$2"
 session="$3"
 
-if [ "x$session" -eq "x" ]; then
+if [ "x$session" == "x" ]; then
     session=projname
 fi
 
-#echo "Project name is $PROJECT_NAME"
-#
 echo "Fetching Isabelle:"
 
-case $isa_ver in#
+case $isa_ver in
     2021-1)
         wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - 
         cd Isabelle2021-1
