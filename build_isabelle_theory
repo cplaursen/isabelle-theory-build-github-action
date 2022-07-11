@@ -26,26 +26,10 @@ case $isa_ver in
 esac
 
 
-#echo projname = "$projname"
-#echo rootdir = "$rootdir"
-#echo session = "$session"
-#echo "workspace =" "$GITHUB_WORKSPACE"
-
-echo "Adding project sources:"
-echo "list workspace"
-ls "$GITHUB_WORKSPACE"
-echo "list rootdir"
-ls "$GITHUB_WORKSPACE/$rootdir"
 echo "Adding project sources:"
 ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
 cd "$isa_base"
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
-echo "Listing src dir:"
-ls "$isa_base/src/"
-echo "Listing project root:"
-ls "$isa_base/src/$projname"
-echo -------------------
-ls "$isa_base/src/$projname/"
 echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
