@@ -32,7 +32,11 @@ ln -s "$GITHUB_WORKSPACE/$root" "$isa_base/src/$projname"
 cd "$isa_base"
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
+echo "Listing src dir:"
+ls "$isa_base/src/"
 echo "Listing project root:"
 ls "$isa_base/src/$projname"
+echo -------------------
+ls "$isa_base/src/$projname/"
 echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
