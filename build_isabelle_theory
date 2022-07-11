@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+echo "Environment is:"
+env
+#export PROJECTNAME=$(basename $(pwd))
+#echo "Project name is $PROJECT_NAME"
+#
+#echo "Fetching Isabelle:"
+#wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - 
+#cd Isabelle2021-1
+#echo "Adding project sources:"
+#ln -s $GITHUB_WORKSPACE "$GITHUB_WORKSPACE/Isabelle2021-1/src/$PROJECTNAME"
+#cd Isabelle2021-1
+#echo "Adding root: src/$PROJECTNAME"
+#echo "src/$PROJECTNAME" >> ROOTS
+#echo 'building with: ./bin/isabelle build -b' "$PROJECTNAME"
+#./bin/isabelle build -b "$PROJECTNAME"
