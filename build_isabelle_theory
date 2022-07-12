@@ -1,35 +1,94 @@
-#!/usr/bin/env bash
+#!/usr/bin/env xonsh
 
-set -e
+$RAISE_SUBPROC_ERROR = True
 
-projname=$(basename $(pwd))
-isa_ver="$1"
-rootdir="$2"
-session="$3"
+import argparse
+import yaml
+import re
+from os import listdir
+from os import path
 
-if [ "x$session" == "x" ]; then
-    session=$projname
-fi
 
-echo "Fetching Isabelle:"
+p = argparse.ArgumentParser()
+p.add_argument('isabelle_version')
+p.add_argument('root_dir')
+p.add_argument('session_name')
+p.add_argument('dependencies')
+a = p.parse_args()
 
-case $isa_ver in
-    2021-1)
-        wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - 
+thisprog = $ARG0
+$projname = $(basename $(pwd)).strip()
+isa_ver = a.isabelle_version
+$rootdir = a.root_dir
+$session = a.session_name
+deplist = a.dependencies
+build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
+    
+
+if $session == "":
+    $session = $projname
+
+
+match isa_ver:
+    case "2021-1":
+        if not path.isdir('Isabelle2021-1'):
+            echo "Fetching Isabelle:"
+            echo "wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - "
         cd Isabelle2021-1
-        isa_base=$(pwd)
-        ;;
-    *)
-        echo "Unknown Isabelle version `$isa_ver`."
-        exit 1
-        ;;
-esac
+        $isa_base=$(pwd)
+    case _:
+        echo f"Unknown Isabelle version `{isa_ver}`."
+        exit(1)
+
+echo "Checking for dependencies..."
+
+for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
+    print(dep)
+    try:
+        ($url, $ref) = dep.split('@')
+    except:
+        echo f"Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
+        exit(1)
+    print($url)
+    print($ref)
+    $clonedir = $url.split('/')[-1]
+    
+    git clone --recurse-submodules -b "$ref" "$url" "$clonedir"
+    pushd "$clonedir"
+    wdir = ".github/workflows"
+    files = listdir(wdir)
+    to_build = []
+    for file in files:
+        p = path.join(wdir, file)
+        if path.isfile(p):
+            y = yaml.safe_load(open(p))
+            print(yaml.dump(y))
+            for job in y['jobs']:
+                steps = y['jobs'][job].get('steps', {})
+                isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
+                for s in isabelle_steps:
+                    args = s.get('with', {})
+                    dep_build_ver = s.get('uses').split('@')[-1]
+                    dep_isa_ver = args.get('isabelle-version', 'UNKOWN_VERSION')
+                    dep_session = args.get('session-name', '')
+                    dep_root = args.get('theory-root', '')
+                    dep_deps = args.get('depends', '')
+                    if dep_isa_ver != isa_ver:
+                        echo f"::warning file={$url}:{p} Dependency is normally built using a different isabelle version"
+                    if dep_build_ver != build_ver:
+                        echo f"::warning file={$url}:{p} Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
+        to_build.append([dep_root, dep_session, dep_deps])
+    popd
+    for $dep_root, $dep_session, $dep_deps in to_build:
+        $ARG0 $ARG1 $dep_root $dep_session $dep_deps
 
 
-echo "Adding project sources:"
+echo "Adding project sources..."
 ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
 cd "$isa_base"
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
+
+

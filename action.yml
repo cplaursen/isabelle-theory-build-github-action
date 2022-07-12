@@ -10,6 +10,9 @@ inputs:
   session-name:
     description: 'The session name to build (with isabelle build -b session-name). This defaults to the name of the repository.'
     default: ''
+  depends:
+    description: 'A whitespace-separated list of other repositories containing sessions that are required to build the session in the current repository. Use url@ref syntax to specify a git ref.'
+    default: ''
 #outputs: # TODO
 #  heap-image:
 #    description: "path to the built image"
@@ -19,6 +22,6 @@ runs:
   steps:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}"
+    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
       shell: bash
 
