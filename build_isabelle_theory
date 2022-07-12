@@ -49,10 +49,10 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
         exit(1)
     $clonedir = $url.split('/')[-1]
     if $clonedir.endswith('.git'):
-        $clondeir = $clonedir[0:-4]
+        $clonedir = $clonedir[0:-4]
     
     echo "Cloning dependency: $url"
-    git clone --recurse-submodules -b "$ref" "$url" "$clonedir"
+    git clonei -q --recurse-submodules -b "$ref" "$url" "$clonedir"
     pushd "$clonedir"
     wdir = ".github/workflows"
     files = listdir(wdir)
@@ -69,7 +69,7 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
                     dep_build_ver = s.get('uses').split('@')[-1]
                     dep_isa_ver = args.get('isabelle-version', 'UNKOWN_VERSION')
                     dep_session = args.get('session-name', $clonedir)
-                    dep_root = args.get('theory-root', '')
+                    dep_root = path.join($clonedir, args.get('theory-root', ''))
                     dep_deps = args.get('depends', '')
                     if dep_isa_ver != isa_ver:
                         echo f"::warning file={$url}:{p} Dependency is normally built using a different isabelle version"
