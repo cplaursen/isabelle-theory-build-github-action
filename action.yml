@@ -18,7 +18,7 @@ runs:
   steps:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    - run: sudo apt-get install xonsh python3-yaml texlive texlive-plain-generic texlive-science
+    - run: sudo apt-get install xonsh python3-yaml texlive texlive-plain-generic texlive-science texlive-latex-extra
       shell: bash
     - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
       shell: bash
