@@ -19,10 +19,9 @@ p.add_argument('--projname')
 a = p.parse_args()
 
 thisprog = $ARG0
-#$projname = $(basename $(pwd)).strip()
-#if a.projname:
-#    $projname = a.projname
-$projname = a.projname or ''
+$projname = $(basename $(pwd)).strip()
+if a.projname:
+    $projname = a.projname
 isa_ver = a.isabelle_version
 $rootdir = a.root_dir
 if $rootdir.strip() == '':
