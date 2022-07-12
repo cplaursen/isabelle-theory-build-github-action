@@ -48,6 +48,8 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
         echo f"Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
         exit(1)
     $clonedir = $url.split('/')[-1]
+    if $clonedir.endswith('.git'):
+        $clondeir = $clonedir[0:-4]
     
     echo "Cloning dependency: $url"
     git clone --recurse-submodules -b "$ref" "$url" "$clonedir"
