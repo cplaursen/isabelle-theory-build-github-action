@@ -22,7 +22,7 @@ thisprog = $ARG0
 $projname = $(basename $(pwd)).strip()
 if a.projname:
     $projname = a.projname
-$projdir = a.projname
+$projdir = a.projname or ''
 isa_ver = a.isabelle_version
 $rootdir = a.root_dir
 if $rootdir.strip() == '':
