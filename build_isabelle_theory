@@ -97,7 +97,12 @@ echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
 try:
-    ./bin/isabelle build -b "$session"
+    sessions = [a for a in re.split(r'[ \t]+', $session) if a.strip() != '']
+    if not sessions:
+        echo "::error::No sesssions were build, check your session-name input lists some sessions to build."
+        exit(1)
+    for $session in sessions:
+        ./bin/isabelle build -b "$session"
 except Exception as e:
     echo f"::error::Build failed: {str(e)}"
     exit(1)
