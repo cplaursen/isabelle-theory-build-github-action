@@ -32,8 +32,9 @@ if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
         echo "Fetching Isabelle:"
         wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
-    cd Isabelle2021-1
+    pushd Isabelle2021-1
     $isa_base=$(pwd)
+    popd
 else:
     echo f"Unknown Isabelle version `{isa_ver}`."
     exit(1)
@@ -41,16 +42,14 @@ else:
 echo "Checking for dependencies..."
 
 for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
-    print(dep)
     try:
         ($url, $ref) = dep.split('@')
     except:
         echo f"Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
         exit(1)
-    print($url)
-    print($ref)
     $clonedir = $url.split('/')[-1]
     
+    echo "Cloning dependency: $url"
     git clone --recurse-submodules -b "$ref" "$url" "$clonedir"
     pushd "$clonedir"
     wdir = ".github/workflows"
@@ -60,7 +59,6 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
         p = path.join(wdir, file)
         if path.isfile(p):
             y = yaml.safe_load(open(p))
-            print(yaml.dump(y))
             for job in y['jobs']:
                 steps = y['jobs'][job].get('steps', {})
                 isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
@@ -78,15 +76,18 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
         to_build.append([dep_root, dep_session, dep_deps])
     popd
     for $dep_root, $dep_session, $dep_deps in to_build:
+        echo "Building depndency: $dep_session"
         $ARG0 $ARG1 $dep_root $dep_session $dep_deps
 
 
 echo "Adding project sources..."
+echo "[[[Rootdir is $GITHUB_WORKSPACE/$rootdir]]]"
+echo "[[[links to $isa_base/src/$projname]]]"
 ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
-cd "$isa_base"
+pushd "$isa_base"
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
-
+popd
 
