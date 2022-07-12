@@ -66,7 +66,7 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
                     args = s.get('with', {})
                     dep_build_ver = s.get('uses').split('@')[-1]
                     dep_isa_ver = args.get('isabelle-version', 'UNKOWN_VERSION')
-                    dep_session = args.get('session-name', '')
+                    dep_session = args.get('session-name', $clonedir)
                     dep_root = args.get('theory-root', '')
                     dep_deps = args.get('depends', '')
                     if dep_isa_ver != isa_ver:
@@ -78,6 +78,7 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
     for $dep_root, $dep_session, $dep_deps in to_build:
         echo "Building depndency: $dep_session"
         $ARG0 $ARG1 $dep_root $dep_session $dep_deps
+        echo "Finished building depndency: $dep_session"
 
 
 echo "Adding project sources..."
