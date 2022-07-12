@@ -7,6 +7,7 @@ import yaml
 import re
 from os import listdir
 from os import path
+from sys import exit
 
 
 p = argparse.ArgumentParser()
@@ -91,6 +92,7 @@ for dep in deplist:
 
 
 echo "Adding project sources..."
+echo ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
 ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
 pushd "$isa_base" > /dev/null
 echo "Adding root: src/$projname"
