@@ -54,10 +54,7 @@ if isa_ver == "2021-1":
             pushd Isabelle2021-1 > /dev/null
             sudo apt install default-jdk haskell-stack
             $ISABELLE_STACK = $(which stack)
-            echo "javac is $(which javac)"
-            echo "javac link is $(readlink -f $(which javac))"
             $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
-            echo "java_home is $JAVA_HOME"
             ./bin/isabelle components -I
             ./bin/isabelle components -a
             ./bin/isabelle ghc_setup
