@@ -31,7 +31,7 @@ if $session == "":
 if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
         echo "Fetching Isabelle:"
-        echo "wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - "
+        wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
     cd Isabelle2021-1
     $isa_base=$(pwd)
 else:
