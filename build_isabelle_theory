@@ -28,17 +28,15 @@ build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
 if $session == "":
     $session = $projname
 
-
-match isa_ver:
-    case "2021-1":
-        if not path.isdir('Isabelle2021-1'):
-            echo "Fetching Isabelle:"
-            echo "wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - "
-        cd Isabelle2021-1
-        $isa_base=$(pwd)
-    case _:
-        echo f"Unknown Isabelle version `{isa_ver}`."
-        exit(1)
+if isa_ver == "2021-1":
+    if not path.isdir('Isabelle2021-1'):
+        echo "Fetching Isabelle:"
+        echo "wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf - "
+    cd Isabelle2021-1
+    $isa_base=$(pwd)
+else:
+    echo f"Unknown Isabelle version `{isa_ver}`."
+    exit(1)
 
 echo "Checking for dependencies..."
 
