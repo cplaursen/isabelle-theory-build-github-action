@@ -22,6 +22,7 @@ thisprog = $ARG0
 $projname = $(basename $(pwd)).strip()
 if a.projname:
     $projname = a.projname
+$projdir = a.projname
 isa_ver = a.isabelle_version
 $rootdir = a.root_dir
 if $rootdir.strip() == '':
@@ -94,8 +95,8 @@ for dep in deplist:
 
 
 echo "Adding project sources..."
-echo ln -s "$GITHUB_WORKSPACE/$projname" "$isa_base/src/$projname"
-ln -s "$GITHUB_WORKSPACE/$projname" "$isa_base/src/$projname"
+echo ln -s "$GITHUB_WORKSPACE/$projdir" "$isa_base/src/$projname"
+ln -s "$GITHUB_WORKSPACE/$projdir" "$isa_base/src/$projname"
 pushd "$isa_base" > /dev/null
 
 rootlist = [a for a in re.split(r'[ \t]+', $rootdir) if a.strip() != '']
