@@ -100,5 +100,6 @@ try:
     ./bin/isabelle build -b "$session"
 except Exception as e:
     echo f"::error::Build failed: {str(e)}"
+    exit(1)
 popd > /dev/null
 
