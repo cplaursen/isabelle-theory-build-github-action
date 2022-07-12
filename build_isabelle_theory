@@ -25,6 +25,8 @@ thisprog = $ARG0
 $projname = a.projname or ''
 isa_ver = a.isabelle_version
 $rootdir = a.root_dir
+if $rootdir.strip() == '':
+    $rootdir = '.'
 $session = a.session_name
 deplist = a.dependencies
 build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
