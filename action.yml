@@ -4,6 +4,9 @@ inputs:
   isabelle-version:
     description: 'Version of Isabelle to build with, currently only `2021-1` is supported'
     required: true
+  custom-isabelle-url:
+    description: 'If you want to use a non-standard version of isabelle to build your package, use this option to specify an archive file url. You still need to specify isabelle-version, however.'
+    default: ''
   theory-root:
     description: 'Path to the root of the theory. This defaults to the root of the repository.'
     default: ''
@@ -20,6 +23,6 @@ runs:
       shell: bash
     - run: sudo apt-get install xonsh python3-yaml texlive texlive-plain-generic texlive-science texlive-latex-extra
       shell: bash
-    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
+    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.custom-isabelle-url }}"
       shell: bash
 

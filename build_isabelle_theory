@@ -15,6 +15,7 @@ p.add_argument('isabelle_version')
 p.add_argument('root_dir')
 p.add_argument('session_name')
 p.add_argument('dependencies')
+p.add_argument('custom_archive')
 p.add_argument('--projname')
 a = p.parse_args()
 
@@ -30,6 +31,8 @@ if $rootdir.strip() == '':
 $session = a.session_name
 deplist = a.dependencies
 build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
+
+$custom = a.custom_archive.strip()
     
 
 if $session == "":
@@ -37,8 +40,13 @@ if $session == "":
 
 if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
-        echo "Fetching Isabelle:"
-        wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
+        if $custom == '':
+            echo "Fetching Isabelle:"
+            wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
+        else:
+            echo "Fetching custom Isabelle distribution from $custom"
+            wget -nv -O custom_archive $custom
+            aunpack custom_archive -X Isabelle2021-1
     pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
