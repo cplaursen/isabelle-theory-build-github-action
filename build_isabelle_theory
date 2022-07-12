@@ -52,7 +52,7 @@ for dep in [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']:
         $clonedir = $clonedir[0:-4]
     
     echo "Cloning dependency: $url"
-    git clonei -q --recurse-submodules -b "$ref" "$url" "$clonedir"
+    git clone -q --recurse-submodules -b "$ref" "$url" "$clonedir"
     pushd "$clonedir"
     wdir = ".github/workflows"
     files = listdir(wdir)
