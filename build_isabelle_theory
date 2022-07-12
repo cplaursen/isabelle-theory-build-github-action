@@ -47,10 +47,17 @@ if isa_ver == "2021-1":
             echo "Fetching custom Isabelle distribution from $custom"
             wget -nv -O custom_archive $custom
             aunpack custom_archive -X Isabelle2021-1
+            echo "After unpacking custom Isabelle distro, the isabelle folder contains:"
+            ls Isabelle2021-1
             n = $(ls Isabelle2021-1 | wc -l)
             if n == 1:
+                echo "Need to rename inner folder"
                 mv Isabelle2021-1 isa_tmp
                 mv isa_tmp/* Isabelle2021-1
+                echo "Now we have:"
+                ls Isabelle2021-1
+            else:
+                echo "This appears to be correct"
     pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
