@@ -19,9 +19,10 @@ p.add_argument('--projname')
 a = p.parse_args()
 
 thisprog = $ARG0
-$projname = $(basename $(pwd)).strip()
-if a.projname:
-    $projname = a.projname
+#$projname = $(basename $(pwd)).strip()
+#if a.projname:
+#    $projname = a.projname
+$projname = a.projname or ''
 isa_ver = a.isabelle_version
 $rootdir = a.root_dir
 $session = a.session_name
@@ -92,8 +93,8 @@ for dep in deplist:
 
 
 echo "Adding project sources..."
-echo ln -s "$GITHUB_WORKSPACE" "$isa_base/src/$projname"
-ln -s "$GITHUB_WORKSPACE" "$isa_base/src/$projname"
+echo ln -s "$GITHUB_WORKSPACE/$projname" "$isa_base/src/$projname"
+ln -s "$GITHUB_WORKSPACE/$projname" "$isa_base/src/$projname"
 pushd "$isa_base" > /dev/null
 echo "Adding root: src/$projname/$rootdir"
 echo "src/$projname/$rootdir" >> ROOTS
