@@ -98,7 +98,7 @@ echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
 try:
     ./bin/isabelle build -b "$session"
-except e:
+except Exception as e:
     echo f"::error::Build failed: {str(e)}"
 popd > /dev/null
 
