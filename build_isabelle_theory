@@ -96,6 +96,9 @@ pushd "$isa_base" > /dev/null
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
-./bin/isabelle build -b "$session"
+try
+    ./bin/isabelle build -b "$session"
+except e:
+    echo f"::error::Build failed: {str(e)}"
 popd > /dev/null
 
