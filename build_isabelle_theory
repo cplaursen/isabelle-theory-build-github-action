@@ -35,9 +35,9 @@ if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
         echo "Fetching Isabelle:"
         wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
-    pushd Isabelle2021-1
+    pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
-    popd
+    popd > /dev/null
 else:
     echo f"Unknown Isabelle version `{isa_ver}`."
     exit(1)
@@ -60,7 +60,7 @@ for dep in deplist:
     
     echo "Cloning dependency: $url"
     git clone -q --recurse-submodules -b "$ref" "$url" "$clonedir"
-    pushd "$clonedir"
+    pushd "$clonedir" > /dev/null
     wdir = ".github/workflows"
     files = listdir(wdir)
     to_build = []
@@ -83,7 +83,7 @@ for dep in deplist:
                     if dep_build_ver != build_ver:
                         echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
         to_build.append([dep_root, dep_session, dep_deps])
-    popd
+    popd > /dev/null
     for $dep_root, $dep_session, $dep_deps in to_build:
         echo "Building depndency: $dep_session"
         $ARG0 $ARG1 $dep_root $dep_session $dep_deps --projname=$clonedir
@@ -92,10 +92,10 @@ for dep in deplist:
 
 echo "Adding project sources..."
 ln -s "$GITHUB_WORKSPACE/$rootdir" "$isa_base/src/$projname"
-pushd "$isa_base"
+pushd "$isa_base" > /dev/null
 echo "Adding root: src/$projname"
 echo "src/$projname" >> ROOTS
 echo "building with: isabelle build -b \"$session\""
 ./bin/isabelle build -b "$session"
-popd
+popd > /dev/null
 
