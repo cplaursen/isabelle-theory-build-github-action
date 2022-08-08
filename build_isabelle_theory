@@ -62,6 +62,30 @@ if isa_ver == "2021-1":
     pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
+elif isa_ver == "2022-RC0":
+    if not path.isdir('Isabelle2022-RC0'):
+        if $custom == '':
+            echo "Fetching Isabelle:"
+            wget -nv -O - https://isabelle.sketis.net/website-Isabelle2022-RC0/Isabelle2022-RC0_linux.tar.gz | tar -xzf -
+        else:
+            echo "Fetching custom Isabelle distribution from $custom"
+            wget -nv -O custom_archive $custom
+            aunpack custom_archive -X Isabelle2021-1
+            n = $(ls Isabelle2022-RC0 | wc -l)
+            if int(n.strip()) == 1:
+                mv Isabelle2022-RC0 isa_tmp
+                mv isa_tmp/* Isabelle2022-RC0
+            pushd Isabelle2022-RC0 > /dev/null
+            sudo apt install default-jdk haskell-stack
+            $ISABELLE_STACK = $(which stack)
+            $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
+            ./bin/isabelle components -I
+            ./bin/isabelle components -a
+            ./bin/isabelle ghc_setup
+            popd > /dev/null
+    pushd Isabelle2022-RC0 > /dev/null
+    $isa_base=$(pwd).strip()
+    popd > /dev/null
 else:
     echo f"Unknown Isabelle version `{isa_ver}`."
     exit(1)
