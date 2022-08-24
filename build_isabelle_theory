@@ -70,7 +70,7 @@ elif isa_ver == "2022-RC0":
         else:
             echo "Fetching custom Isabelle distribution from $custom"
             wget -nv -O custom_archive $custom
-            aunpack custom_archive -X Isabelle2021-1
+            aunpack custom_archive -X Isabelle2022-RC0
             n = $(ls Isabelle2022-RC0 | wc -l)
             if int(n.strip()) == 1:
                 mv Isabelle2022-RC0 isa_tmp
