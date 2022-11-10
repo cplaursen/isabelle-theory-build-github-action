@@ -52,7 +52,8 @@ if isa_ver == "2021-1":
                 mv Isabelle2021-1 isa_tmp
                 mv isa_tmp/* Isabelle2021-1
         pushd Isabelle2021-1 > /dev/null
-        sudo apt install default-jdk haskell-stack
+        sudo apt-get update
+        sudo apt-get install -y default-jdk haskell-stack
         $ISABELLE_STACK = $(which stack)
         $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
         ./bin/isabelle components -I
@@ -76,7 +77,8 @@ elif isa_ver == "2022":
                 mv Isabelle2022 isa_tmp
                 mv isa_tmp/* Isabelle2022
             pushd Isabelle2022 > /dev/null
-            sudo apt install default-jdk haskell-stack
+            sudo apt-get update
+            sudo apt-get install -y default-jdk haskell-stack
             $ISABELLE_STACK = $(which stack)
             $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
             ./bin/isabelle components -I
