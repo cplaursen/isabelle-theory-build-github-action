@@ -51,14 +51,14 @@ if isa_ver == "2021-1":
             if int(n.strip()) == 1:
                 mv Isabelle2021-1 isa_tmp
                 mv isa_tmp/* Isabelle2021-1
-            pushd Isabelle2021-1 > /dev/null
-            sudo apt install default-jdk haskell-stack
-            $ISABELLE_STACK = $(which stack)
-            $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
-            ./bin/isabelle components -I
-            ./bin/isabelle components -a
-            ./bin/isabelle ghc_setup
-            popd > /dev/null
+        pushd Isabelle2021-1 > /dev/null
+        sudo apt install default-jdk haskell-stack
+        $ISABELLE_STACK = $(which stack)
+        $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
+        ./bin/isabelle components -I
+        ./bin/isabelle components -a
+        ./bin/isabelle ghc_setup
+        popd > /dev/null
     pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
