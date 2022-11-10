@@ -42,15 +42,16 @@ if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
         if $custom == '':
             echo "Fetching Isabelle:"
-            wget -nv -O - https://www.cl.cam.ac.uk/users/lcp/archive/Isabelle2021-1.tar.gz | tar -xzf -
+            # The SEL4 mirror of the isabelle mercurial is actually the most convenient way to get isabelle, surprisingly
+            wget -nv -O archive https://github.com/seL4/isabelle/archive/refs/tags/Isabelle2021-1.zip
         else:
             echo "Fetching custom Isabelle distribution from $custom"
-            wget -nv -O custom_archive $custom
-            aunpack custom_archive -X Isabelle2021-1
-            n = $(ls Isabelle2021-1 | wc -l)
-            if int(n.strip()) == 1:
-                mv Isabelle2021-1 isa_tmp
-                mv isa_tmp/* Isabelle2021-1
+            wget -nv -O archive $custom
+        aunpack archive -X Isabelle2021-1
+        n = $(ls Isabelle2021-1 | wc -l)
+        if int(n.strip()) == 1:
+            mv Isabelle2021-1 isa_tmp
+            mv isa_tmp/* Isabelle2021-1
         pushd Isabelle2021-1 > /dev/null
         sudo apt-get update
         sudo apt-get install -y default-jdk haskell-stack
@@ -65,6 +66,7 @@ if isa_ver == "2021-1":
     popd > /dev/null
 elif isa_ver == "2022":
     if not path.isdir('Isabelle2022'):
+        # TODO this will break on the next release, fix up these links, and the setup process ... grrr
         if $custom == '':
             echo "Fetching Isabelle:"
             wget -nv -O - https://www.cl.cam.ac.uk/research/hvg/Isabelle/dist/Isabelle2022_linux.tar.gz | tar -xzf -
