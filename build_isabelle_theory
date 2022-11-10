@@ -42,7 +42,7 @@ if isa_ver == "2021-1":
     if not path.isdir('Isabelle2021-1'):
         if $custom == '':
             echo "Fetching Isabelle:"
-            wget -nv -O - https://isabelle.in.tum.de/dist/Isabelle2021-1_linux.tar.gz | tar -xzf -
+            wget -nv -O - https://www.cl.cam.ac.uk/users/lcp/archive/Isabelle2021-1.tar.gz | tar -xzf -
         else:
             echo "Fetching custom Isabelle distribution from $custom"
             wget -nv -O custom_archive $custom
@@ -62,20 +62,20 @@ if isa_ver == "2021-1":
     pushd Isabelle2021-1 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
-elif isa_ver == "2022-RC0":
-    if not path.isdir('Isabelle2022-RC0'):
+elif isa_ver == "2022":
+    if not path.isdir('Isabelle2022'):
         if $custom == '':
             echo "Fetching Isabelle:"
-            wget -nv -O - https://isabelle.sketis.net/website-Isabelle2022-RC0/Isabelle2022-RC0_linux.tar.gz | tar -xzf -
+            wget -nv -O - https://www.cl.cam.ac.uk/research/hvg/Isabelle/dist/Isabelle2022_linux.tar.gz | tar -xzf -
         else:
             echo "Fetching custom Isabelle distribution from $custom"
             wget -nv -O custom_archive $custom
-            aunpack custom_archive -X Isabelle2022-RC0
-            n = $(ls Isabelle2022-RC0 | wc -l)
+            aunpack custom_archive -X Isabelle2022
+            n = $(ls Isabelle2022 | wc -l)
             if int(n.strip()) == 1:
-                mv Isabelle2022-RC0 isa_tmp
-                mv isa_tmp/* Isabelle2022-RC0
-            pushd Isabelle2022-RC0 > /dev/null
+                mv Isabelle2022 isa_tmp
+                mv isa_tmp/* Isabelle2022
+            pushd Isabelle2022 > /dev/null
             sudo apt install default-jdk haskell-stack
             $ISABELLE_STACK = $(which stack)
             $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
@@ -83,7 +83,7 @@ elif isa_ver == "2022-RC0":
             ./bin/isabelle components -a
             ./bin/isabelle ghc_setup
             popd > /dev/null
-    pushd Isabelle2022-RC0 > /dev/null
+    pushd Isabelle2022 > /dev/null
     $isa_base=$(pwd).strip()
     popd > /dev/null
 else:
