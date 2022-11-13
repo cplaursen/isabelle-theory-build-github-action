@@ -2,13 +2,14 @@
 
 $RAISE_SUBPROC_ERROR = True
 
+import json
 import argparse
 import yaml
 import re
 from os import listdir
 from os import path
 from sys import exit
-
+from datetime import datetime
 
 p = argparse.ArgumentParser()
 p.add_argument('isabelle_version')
@@ -16,6 +17,8 @@ p.add_argument('root_dir')
 p.add_argument('session_name')
 p.add_argument('dependencies')
 p.add_argument('custom_archive')
+p.add_argument('report_url')
+p.add_argument('report_secret')
 p.add_argument('--projname')
 a = p.parse_args()
 
@@ -33,6 +36,9 @@ deplist = a.dependencies
 build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
 
 $custom = a.custom_archive.strip()
+
+$report_url = a.report_url
+$report_secret = a.report_secret
     
 
 if $session == "":
@@ -131,7 +137,7 @@ for dep in deplist:
                     dep_root = args.get('theory-root', '')
                     dep_deps = args.get('depends', '')
                     if dep_isa_ver != isa_ver:
-                        echo f"::warning file={$url}:{p}::Dependency is normally built using a different isabelle version."
+                        continue
                     if dep_build_ver != build_ver:
                         echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
         to_build.append([dep_root, dep_session, dep_deps])
@@ -151,16 +157,32 @@ rootlist = [a for a in re.split(r'[ \t]+', $rootdir) if a.strip() != '']
 for $rootdir in rootlist:
     echo "Adding root: src/$projname/$rootdir"
     echo "src/$projname/$rootdir" >> ROOTS
+final_result = 2
 try:
     sessions = [a for a in re.split(r'[ \t]+', $session) if a.strip() != '']
     if not sessions:
         echo "::error::No sesssions were build, check your session-name input lists some sessions to build."
-        exit(1)
-    for $session in sessions:
-        echo "building with: isabelle build -b \"$session\""
-        ./bin/isabelle build -b "$session"
+        final_result = 1
+    else:
+        for $session in sessions:
+            echo "building with: isabelle build -b \"$session\""
+            ./bin/isabelle build -b "$session"
+            final_result = 0
 except Exception as e:
     echo f"::error::Build failed: {str(e)}"
-    exit(1)
+    final_result = 1
 popd > /dev/null
 
+if report_url != '':
+    yamltext = 'todo'
+    
+    $topost=json.dumps({
+        'reponame':$GITHUB_REPOSITORY,
+        'datetime':datetime.now().isoformat(),
+        'result':str(final_result),
+        'config':yamltext,
+    })
+    
+    printf "%s" $topost | ./signed_post.py $report_url $report_secret
+
+exit(final_result)
