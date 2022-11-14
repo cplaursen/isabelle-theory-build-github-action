@@ -22,9 +22,6 @@ p.add_argument('report_secret')
 p.add_argument('--projname')
 a = p.parse_args()
 
-echo "$GITHUB_EVENT_PATH "
-cat "$GITHUB_EVENT_PATH"
-
 thisprog = $ARG0
 $projname = $(basename $(pwd)).strip()
 if a.projname:
@@ -178,7 +175,7 @@ popd > /dev/null
 
 if $report_url != '':
     yamlfile = None
-    wdir = "$GITHUB_WORKSPACE/.github/workflows"
+    wdir = f"{$GITHUB_WORKSPACE}/.github/workflows"
     print(f"search dir: {wdir}")
     files = listdir(wdir)
     to_build = []
