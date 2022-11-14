@@ -183,6 +183,6 @@ if $report_url != '':
         'config':yamltext,
     })
     
-    printf "%s" $topost | ./signed_post.py $report_url $report_secret
+    printf "%s" $topost | signed_post.py $report_url $report_secret
 
 exit(final_result)
