@@ -142,9 +142,9 @@ for dep in deplist:
                         continue
                     if dep_build_ver != build_ver:
                         echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
-        to_build.append([dep_root, dep_session, dep_deps])
+                    to_build.append((dep_root, dep_session, dep_deps))
     popd > /dev/null
-    for $dep_root, $dep_session, $dep_deps in to_build:
+    for $dep_root, $dep_session, $dep_deps in set(to_build):
         echo "Building depndency: $dep_session"
         $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' --projname=$clonedir
         echo "Finished building depndency: $dep_session"
