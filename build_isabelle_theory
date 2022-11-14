@@ -146,7 +146,7 @@ for dep in deplist:
     popd > /dev/null
     for $dep_root, $dep_session, $dep_deps in to_build:
         echo "Building depndency: $dep_session"
-        $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' --projname=$clonedir
+        $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' --projname=$clonedir
         echo "Finished building depndency: $dep_session"
 
 
