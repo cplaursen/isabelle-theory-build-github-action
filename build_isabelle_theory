@@ -198,7 +198,7 @@ if $report_url != '':
                     if this_isa_ver != isa_ver:
                         continue
                     this_session = args.get('session-name')
-                    if (this_session != $session) and (not (session_was_blank and (this_session is None))):
+                    if (this_session != a.session_name) and (not (session_was_blank and (this_session is None))):
                         continue
                     yamlfile = p
                     break
