@@ -173,7 +173,7 @@ except Exception as e:
     final_result = 1
 popd > /dev/null
 
-if report_url != '':
+if $report_url != '':
     yamltext = 'todo'
     
     $topost=json.dumps({
