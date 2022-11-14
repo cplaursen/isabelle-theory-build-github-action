@@ -16,6 +16,12 @@ inputs:
   depends:
     description: 'A whitespace-separated list of other repositories containing sessions that are required to build the session in the current repository. Use url@ref syntax to specify a git ref.'
     default: ''
+  report_url:
+    description: 'Url to submit a build report to (using a very specific protocol that I wont document here) leave unset unless you are specifically me'
+    default: ''
+  report_secret:
+    description: 'Secret to go along with report_url, again this is undocumented'
+    default: ''
 runs:
   using: "composite"
   steps:
