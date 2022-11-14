@@ -177,7 +177,39 @@ except Exception as e:
 popd > /dev/null
 
 if $report_url != '':
-    yamltext = 'todo'
+    yamlfile = None
+    wdir = "$GITHUB_WORKSPACE/.github/workflows"
+    print(f"search dir: {wdir}")
+    files = listdir(wdir)
+    to_build = []
+    for file in files:
+        print(f"try file: {file}")
+        p = path.join(wdir, file)
+        if path.isfile(p):
+            y = yaml.safe_load(open(p))
+            for job in y['jobs']:
+                print(job)
+                steps = y['jobs'][job].get('steps', {})
+                isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
+                for s in isabelle_steps:
+                    print(s)
+                    args = s.get('with', {})
+                    this_isa_ver = args.get('isabelle-version')
+                    if this_isa_ver != isa_ver:
+                        continue
+                    this_session = args.get('session-name')
+                    if this_session != $session:
+                        continue
+                    yamlfile = p
+                    break
+                if yamlfile is not None:
+                    break;
+            if yamlfile is not None:
+                break;
+    print(yamlfile)
+    yamltext = '"Unable to find config file"'
+    if yamlfile is not None:
+        yamltext = open(yamlfile).read()
     
     $topost=json.dumps({
         'reponame':$GITHUB_REPOSITORY,
