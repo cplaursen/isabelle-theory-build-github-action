@@ -22,6 +22,9 @@ p.add_argument('report_secret')
 p.add_argument('--projname')
 a = p.parse_args()
 
+echo "$GITHUB_EVENT_PATH "
+cat "$GITHUB_EVENT_PATH"
+
 thisprog = $ARG0
 $projname = $(basename $(pwd)).strip()
 if a.projname:
@@ -183,6 +186,10 @@ if $report_url != '':
         'config':yamltext,
     })
     
-    printf "%s" $topost | signed_post.py $report_url $report_secret
+    try:
+        printf "%s" $topost | signed_post.py $report_url $report_secret
+    except Exception as e:
+        print("::warning::Failed to report test results to dashboard service")
+        print(e)
 
 exit(final_result)
