@@ -40,8 +40,10 @@ $custom = a.custom_archive.strip()
 $report_url = a.report_url
 $report_secret = a.report_secret
     
+session_was_blank = False
 
 if $session == "":
+    session_was_blank = True
     $session = $projname
 
 if isa_ver == "2021-1":
@@ -191,7 +193,7 @@ if $report_url != '':
                     if this_isa_ver != isa_ver:
                         continue
                     this_session = args.get('session-name')
-                    if this_session != $session:
+                    if (this_session != $session) and (not (session_was_blank and (this_session is None))):
                         continue
                     yamlfile = p
                     break
