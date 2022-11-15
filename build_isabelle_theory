@@ -145,6 +145,9 @@ try:
                             echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
                         to_build.append((dep_root, dep_session, dep_deps))
         popd > /dev/null
+        if len(set(to_build)) < 1:
+            print(f'::error::Unable to resolve dependency, is the build file missing for the dependency repo?: {dep}')
+            print('::warning::Build is continuing with missing dependencies, further errors might be expected.')
         for $dep_root, $dep_session, $dep_deps in set(to_build):
             echo "Building depndency: $dep_session"
             $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' --projname=$clonedir
