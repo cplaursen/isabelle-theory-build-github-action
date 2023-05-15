@@ -41,6 +41,8 @@ $custom = a.custom_archive.strip()
 $report_url = a.report_url
 $report_secret = a.report_secret
     
+$doc_dir = a.doc_dir
+
 session_was_blank = False
 
 if $session == "":
@@ -154,7 +156,7 @@ try:
                 print('::warning::Build is continuing with missing dependencies, further errors might be expected.')
             for $dep_root, $dep_session, $dep_deps in set(to_build):
                 echo "Building depndency: $dep_session"
-                $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' a.doc_dir --projname=$clonedir
+                $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' $doc_dir --projname=$clonedir
                 echo "Finished building depndency: $dep_session"
     
     
@@ -176,7 +178,6 @@ try:
         else:
             for $session in sessions:
                 if a.doc_dir != "":
-                    $doc_dir = a.doc_dir
                     echo "building with: isabelle build -P \"$doc_dir\" -b \"$session\""
                     ./bin/isabelle build -P "$doc_dir" -b "$session"
                     final_result = 0
