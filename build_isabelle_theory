@@ -19,6 +19,7 @@ p.add_argument('dependencies')
 p.add_argument('custom_archive')
 p.add_argument('report_url')
 p.add_argument('report_secret')
+p.add_argument('doc_dir')
 p.add_argument('--projname')
 a = p.parse_args()
 
@@ -153,7 +154,7 @@ try:
                 print('::warning::Build is continuing with missing dependencies, further errors might be expected.')
             for $dep_root, $dep_session, $dep_deps in set(to_build):
                 echo "Building depndency: $dep_session"
-                $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' --projname=$clonedir
+                $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' a.doc_dir --projname=$clonedir
                 echo "Finished building depndency: $dep_session"
     
     
@@ -170,13 +171,19 @@ try:
     try:
         sessions = [a for a in re.split(r'[ \t]+', $session) if a.strip() != '']
         if not sessions:
-            echo "::error::No sesssions were build, check your session-name input lists some sessions to build."
+            echo "::error::No sesssions were built, check your session-name input lists some sessions to build."
             final_result = 1
         else:
             for $session in sessions:
-                echo "building with: isabelle build -b \"$session\""
-                ./bin/isabelle build -b "$session"
-                final_result = 0
+                if a.doc_dir != "":
+                    $doc_dir = a.doc_dir
+                    echo "building with: isabelle build -P \"$doc_dir\" -b \"$session\""
+                    ./bin/isabelle build -P "$doc_dir" -b "$session"
+                    final_result = 0
+                else:
+                    echo "building with: isabelle build -b \"$session\""
+                    ./bin/isabelle build -b "$session"
+                    final_result = 0
     except Exception as e:
         echo f"::error::Build failed: {str(e)}"
         final_result = 1
