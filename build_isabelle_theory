@@ -49,6 +49,7 @@ if $session == "":
 
 try:
     if not path.isdir('Isabelle'):
+        mkdir Isabelle
         echo "Fetching Isabelle from $isa_url"
         wget -nv -O archive $isa_url
         aunpack archive -X Isabelle
