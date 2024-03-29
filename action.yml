@@ -1,11 +1,11 @@
 name: 'Build Isabelle Theory'
-description: 'Build an Isabelle theory file'
+description: 'Build an Isabelle theory file. (In theory. In practice this falls over all the time because isabelle''s release process is awful and it''s impossible to make this work reliably and into the future.'
 inputs:
-  isabelle-version:
-    description: 'Version of Isabelle to build with, currently only `2021-1` is supported'
+  isabelle-url:
+    description: 'The isabelle release process is terrible. Sorry, let me start over. Please provide the url you want to use for the exact zip file for the linux version of isabelle.'
     required: true
   custom-isabelle-url:
-    description: 'If you want to use a non-standard version of isabelle to build your package, use this option to specify an archive file url. You still need to specify isabelle-version, however.'
+    description: 'deprecated. this is ignored'
     default: ''
   theory-root:
     description: 'Path to the root of the theory. This defaults to the root of the repository.'
@@ -35,6 +35,6 @@ runs:
       shell: bash
     - run: sudo apt-get install xonsh python3-yaml atool texlive texlive-plain-generic texlive-science texlive-latex-extra
       shell: bash
-    - run: build_isabelle_theory "${{ inputs.isabelle-version }}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.custom-isabelle-url }}" "${{ inputs.report_url }}" "${{ inputs.report_secret }}" "${{ inputs.doc_dir }}"
+    - run: build_isabelle_theory "${{ inputs.isabelle-url}}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.custom-isabelle-url }}" "${{ inputs.report_url }}" "${{ inputs.report_secret }}" "${{ inputs.doc_dir }}"
       shell: bash
 

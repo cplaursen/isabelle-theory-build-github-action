@@ -12,7 +12,7 @@ from sys import exit
 from datetime import datetime
 
 p = argparse.ArgumentParser()
-p.add_argument('isabelle_version')
+p.add_argument('isabelle_url')
 p.add_argument('root_dir')
 p.add_argument('session_name')
 p.add_argument('dependencies')
@@ -28,15 +28,13 @@ $projname = $(basename $(pwd)).strip()
 if a.projname:
     $projname = a.projname
 $projdir = a.projname or ''
-isa_ver = a.isabelle_version
+$isa_url = a.isabelle_url
 $rootdir = a.root_dir
 if $rootdir.strip() == '':
     $rootdir = '.'
 $session = a.session_name
 deplist = a.dependencies
 build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
-
-$custom = a.custom_archive.strip()
 
 $report_url = a.report_url
 $report_secret = a.report_secret
@@ -50,62 +48,27 @@ if $session == "":
     $session = $projname
 
 try:
-    if isa_ver == "2021-1":
-        if not path.isdir('Isabelle2021-1'):
-            if $custom == '':
-                echo "Fetching Isabelle:"
-                # The SEL4 mirror of the isabelle mercurial is actually the most convenient way to get isabelle, surprisingly
-                wget -nv -O archive https://github.com/seL4/isabelle/archive/refs/tags/Isabelle2021-1.zip
-            else:
-                echo "Fetching custom Isabelle distribution from $custom"
-                wget -nv -O archive $custom
-            aunpack archive -X Isabelle2021-1
-            n = $(ls Isabelle2021-1 | wc -l)
-            if int(n.strip()) == 1:
-                mv Isabelle2021-1 isa_tmp
-                mv isa_tmp/* Isabelle2021-1
-            pushd Isabelle2021-1 > /dev/null
-            sudo apt-get update
-            sudo apt-get install -y default-jdk haskell-stack
-            $ISABELLE_STACK = $(which stack)
-            $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
-            ./bin/isabelle components -I
-            ./bin/isabelle components -a
-            ./bin/isabelle ghc_setup
-            popd > /dev/null
-        pushd Isabelle2021-1 > /dev/null
-        $isa_base=$(pwd).strip()
+    if not path.isdir('Isabelle'):
+        echo "Fetching Isabelle from $isa_url"
+        wget -nv -O archive $isa_url
+        aunpack archive -X Isabelle
+        n = $(ls Isabelle | wc -l)
+        if int(n.strip()) == 1:
+            mv Isabelle isa_tmp
+            mv isa_tmp/* Isabelle
+        pushd Isabelle > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y default-jdk haskell-stack
+        $ISABELLE_STACK = $(which stack)
+        $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
+        ./bin/isabelle components -I
+        ./bin/isabelle components -a
+        ./bin/isabelle ghc_setup
         popd > /dev/null
-    elif isa_ver == "2022":
-        if not path.isdir('Isabelle2022'):
-            # TODO this will break on the next release, fix up these links, and the setup process ... grrr
-            if $custom == '':
-                echo "Fetching Isabelle:"
-                wget -nv -O - https://www.cl.cam.ac.uk/research/hvg/Isabelle/dist/Isabelle2022_linux.tar.gz | tar -xzf -
-            else:
-                echo "Fetching custom Isabelle distribution from $custom"
-                wget -nv -O custom_archive $custom
-                aunpack custom_archive -X Isabelle2022
-                n = $(ls Isabelle2022 | wc -l)
-                if int(n.strip()) == 1:
-                    mv Isabelle2022 isa_tmp
-                    mv isa_tmp/* Isabelle2022
-                pushd Isabelle2022 > /dev/null
-                sudo apt-get update
-                sudo apt-get install -y default-jdk haskell-stack
-                $ISABELLE_STACK = $(which stack)
-                $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
-                ./bin/isabelle components -I
-                ./bin/isabelle components -a
-                ./bin/isabelle ghc_setup
-                popd > /dev/null
-        pushd Isabelle2022 > /dev/null
-        $isa_base=$(pwd).strip()
-        popd > /dev/null
-    else:
-        echo f"Unknown Isabelle version `{isa_ver}`."
-        exit(1)
-    
+    pushd Isabelle > /dev/null
+    $isa_base=$(pwd).strip()
+    popd > /dev/null
+   
     echo "Checking for dependencies..."
     deplist = [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']
     
@@ -141,11 +104,11 @@ try:
                         for s in isabelle_steps:
                             args = s.get('with', {})
                             dep_build_ver = s.get('uses').split('@')[-1]
-                            dep_isa_ver = args.get('isabelle-version', 'UNKOWN_VERSION')
+                            dep_isa_ver = args.get('isabelle-url', 'UNKOWN_URL')
                             dep_session = args.get('session-name', $clonedir)
                             dep_root = args.get('theory-root', '')
                             dep_deps = args.get('depends', '')
-                            if dep_isa_ver != isa_ver:
+                            if dep_isa_ver != $isa_url:
                                 continue
                             if dep_build_ver != build_ver:
                                 echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
@@ -208,8 +171,8 @@ if $report_url != '':
                 isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
                 for s in isabelle_steps:
                     args = s.get('with', {})
-                    this_isa_ver = args.get('isabelle-version')
-                    if this_isa_ver != isa_ver:
+                    this_isa_ver = args.get('isabelle-url')
+                    if this_isa_ver != $isa_url:
                         continue
                     this_session = args.get('session-name')
                     if (this_session != a.session_name) and (not (session_was_blank and (this_session is None))):
