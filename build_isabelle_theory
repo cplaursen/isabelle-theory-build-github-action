@@ -52,7 +52,7 @@ try:
         mkdir Isabelle
         echo "Fetching Isabelle from $isa_url"
         wget -nv -O archive $isa_url
-        aunpack archive -X Isabelle
+        aunpack -q archive -X Isabelle
         n = $(ls Isabelle | wc -l)
         if int(n.strip()) == 1:
             mv Isabelle isa_tmp
@@ -80,7 +80,7 @@ try:
         try:
             ($url, $ref) = dep.split('@')
         except:
-            echo f"Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
+            echo f"::error::Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
             exit(1)
         $clonedir = $url.split('/')[-1]
         if $clonedir.endswith('.git'):
@@ -95,22 +95,27 @@ try:
             wdir = ".github/workflows"
             files = listdir(wdir)
             to_build = []
+            print(f"::debug::Scanning dependency repo for configuration")
             for file in files:
                 p = path.join(wdir, file)
+                print(f"::debug::Checking path {p}")
                 if path.isfile(p):
+                    print(f"::debug::Path {p} is a file, checking for config...")
                     y = yaml.safe_load(open(p))
-                    for job in y['jobs']:
+                    for i, job in enumerate(y['jobs']):
+                        print(f"::debug::Scanning job {i}")
                         steps = y['jobs'][job].get('steps', {})
                         isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
                         for s in isabelle_steps:
                             args = s.get('with', {})
+                            print(f"::debug::Found config: {repr(args).replace('\n',' // ')}")
                             dep_build_ver = s.get('uses').split('@')[-1]
                             dep_isa_ver = args.get('isabelle-url', 'UNKOWN_URL')
                             dep_session = args.get('session-name', $clonedir)
                             dep_root = args.get('theory-root', '')
                             dep_deps = args.get('depends', '')
-                            if dep_isa_ver != $isa_url:
-                                continue
+                            #if dep_isa_ver != $isa_url:
+                            #    continue
                             if dep_build_ver != build_ver:
                                 echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
                             to_build.append((dep_root, dep_session, dep_deps))
@@ -119,7 +124,7 @@ try:
                 print(f'::error::Unable to resolve dependency, is the build file missing for the dependency repo?: {dep}')
                 print('::warning::Build is continuing with missing dependencies, further errors might be expected.')
             for $dep_root, $dep_session, $dep_deps in set(to_build):
-                echo "Building depndency: $dep_session"
+                echo "::notice::Building depndency: $dep_session"
                 $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' $doc_dir --projname=$clonedir
                 echo "Finished building depndency: $dep_session"
     
@@ -141,6 +146,7 @@ try:
             final_result = 1
         else:
             for $session in sessions:
+                echo "::notice::Building session: $session"
                 if a.doc_dir != "":
                     echo "building with: isabelle build -P \"$doc_dir\" -b \"$session\""
                     ./bin/isabelle build -P "$doc_dir" -b "$session"
