@@ -108,7 +108,8 @@ try:
                         isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
                         for s in isabelle_steps:
                             args = s.get('with', {})
-                            print(f"::debug::Found config: {repr(args).replace('\n',' // ')}")
+                            sargs = repr(args).replace('\n',' // ')
+                            print(f"::debug::Found config: {sargs}")
                             dep_build_ver = s.get('uses').split('@')[-1]
                             dep_isa_ver = args.get('isabelle-url', 'UNKOWN_URL')
                             dep_session = args.get('session-name', $clonedir)
