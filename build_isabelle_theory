@@ -79,7 +79,7 @@ try:
         try:
             ($url, $ref) = dep.split('@')
         except:
-            echo f"::error::Unable to parse dependency specification: {dep}, please use this format: <clone_url>@<ref>"
+            echo "::error::Unable to parse dependency specification: @(dep), please use this format: <clone_url>@<ref>"
             exit(1)
         $clonedir = $url.split('/')[-1]
         if $clonedir.endswith('.git'):
@@ -94,7 +94,7 @@ try:
             wdir = ".github/workflows"
             files = listdir(wdir)
             to_build = []
-            print(f"::debug::Scanning dependency repo for configuration")
+            print("::debug::Scanning dependency repo for configuration")
             for file in files:
                 p = path.join(wdir, file)
                 print(f"::debug::Checking path {p}")
@@ -116,8 +116,8 @@ try:
                             dep_deps = args.get('depends', '')
                             #if dep_isa_ver != $isa_url:
                             #    continue
-                            if dep_build_ver != build_ver:
-                                echo f"::warning file=$url:{p}::Dependency is normally built using a different version of cplaursen/isabelle-theory-build-github-action"
+                            if dep_build_ver !=  /build_ver:
+                                echo "::warning file=$url:@(p)::Dependency is normally built using a different version of cplaursen/isabelle-theory-build-github-action"
                             to_build.append((dep_root, dep_session, dep_deps))
             popd > /dev/null
             if len(set(to_build)) < 1:
@@ -154,19 +154,19 @@ try:
                 else:
                     echo "building with: isabelle build -b \"$session\""
                     ./bin/isabelle build -b "$session"
-                    final_result = 0
+                    final_result = 
     except Exception as e:
-        echo f"::error::Build failed: {str(e)}"
+        echo "::error::Build failed: @(str(e))"
         final_result = 1
     popd > /dev/null
 except Exception as e:
     final_result = 1
-    echo f"::error::Build failed in an unexpected way: {str(e)}"
+    echo "::error::Build failed in an unexpected way: @(str(e))"
     print(e)
 
 if $report_url != '':
     yamlfile = None
-    wdir = f"{$GITHUB_WORKSPACE}/.github/workflows"
+    wdir = "$GITHUB_WORKSPACE/.github/workflows"
     files = listdir(wdir)
     to_build = []
     for file in files:
@@ -202,7 +202,7 @@ if $report_url != '':
         'config':yamltext,
     })
     
-    $tempfile = f'{$GITHUB_WORKSPACE}/tempreportfile'
+    $tempfile = f'$GITHUB_WORKSPACE/tempreportfile'
     open($tempfile, 'w+').write($topost)
     try:
         cat $tempfile | signed_post.py $report_url $report_secret
