@@ -16,7 +16,6 @@ p.add_argument('isabelle_url')
 p.add_argument('root_dir')
 p.add_argument('session_name')
 p.add_argument('dependencies')
-p.add_argument('custom_archive')
 p.add_argument('report_url')
 p.add_argument('report_secret')
 p.add_argument('doc_dir')
@@ -105,7 +104,7 @@ try:
                     for i, job in enumerate(y['jobs']):
                         print(f"::debug::Scanning job {i}")
                         steps = y['jobs'][job].get('steps', {})
-                        isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
+                        isabelle_steps = [s for s in steps if s.get('uses', '').startswith("cplaursen/isabelle-theory-build-github-action@")]
                         for s in isabelle_steps:
                             args = s.get('with', {})
                             sargs = repr(args).replace('\n',' // ')
@@ -118,7 +117,7 @@ try:
                             #if dep_isa_ver != $isa_url:
                             #    continue
                             if dep_build_ver != build_ver:
-                                echo "::warning file={}:{}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action".format($url, p)
+                                echo f"::warning file=$url:{p}::Dependency is normally built using a different version of cplaursen/isabelle-theory-build-github-action"
                             to_build.append((dep_root, dep_session, dep_deps))
             popd > /dev/null
             if len(set(to_build)) < 1:
@@ -176,7 +175,7 @@ if $report_url != '':
             y = yaml.safe_load(open(p))
             for job in y['jobs']:
                 steps = y['jobs'][job].get('steps', {})
-                isabelle_steps = [s for s in steps if s.get('uses', '').startswith("lexbailey/isabelle-theory-build-github-action@")]
+                isabelle_steps = [s for s in steps if s.get('uses', '').startswith("cplaursen/isabelle-theory-build-github-action@")]
                 for s in isabelle_steps:
                     args = s.get('with', {})
                     this_isa_ver = args.get('isabelle-url')

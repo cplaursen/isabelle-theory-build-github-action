@@ -2,11 +2,8 @@ name: 'Build Isabelle Theory'
 description: 'Build an Isabelle theory file. (In theory. In practice this falls over all the time because isabelle''s release process is awful and it''s impossible to make this work reliably and into the future.'
 inputs:
   isabelle-url:
-    description: 'The isabelle release process is terrible. Sorry, let me start over. Please provide the url you want to use for the exact zip file for the linux version of isabelle.'
+    description: 'Url for zip file of Isabelle linux release'
     required: true
-  custom-isabelle-url:
-    description: 'deprecated. this is ignored'
-    default: ''
   theory-root:
     description: 'Path to the root of the theory. This defaults to the root of the repository.'
     default: ''
@@ -17,10 +14,10 @@ inputs:
     description: 'A whitespace-separated list of other repositories containing sessions that are required to build the session in the current repository. Use url@ref syntax to specify a git ref.'
     default: ''
   report_url:
-    description: 'Url to submit a build report to (using a very specific protocol that I wont document here) leave unset unless you are specifically me'
+    description: 'Url to submit a build report to'
     default: ''
   report_secret:
-    description: 'Secret to go along with report_url, again this is undocumented'
+    description: 'Secret to go along with report_url'
     default: ''
   doc_dir:
     description: 'Directory to put documentation for build (with -P option to build)'
@@ -31,10 +28,9 @@ runs:
   steps:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    - run: sudo apt-get update
+    - run: sudo apt-get update -y
       shell: bash
-    - run: sudo apt-get install xonsh python3-yaml atool texlive texlive-plain-generic texlive-science texlive-latex-extra
+    - run: sudo apt-get install -y xonsh python3-yaml atool texlive texlive-plain-generic texlive-science texlive-latex-extra
       shell: bash
-    - run: build_isabelle_theory "${{ inputs.isabelle-url}}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.custom-isabelle-url }}" "${{ inputs.report_url }}" "${{ inputs.report_secret }}" "${{ inputs.doc_dir }}"
+    - run: build_isabelle_theory "${{ inputs.isabelle-url}}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.report_url }}" "${{ inputs.report_secret }}" "${{ inputs.doc_dir }}"
       shell: bash
-
