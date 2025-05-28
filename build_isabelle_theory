@@ -118,7 +118,7 @@ try:
                             #if dep_isa_ver != $isa_url:
                             #    continue
                             if dep_build_ver != build_ver:
-                                echo f"::warning file={$url}:{p}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action"
+                                echo "::warning file={}:{}::Dependency is normally built using a different version of lexbailey/isabelle-theory-build-github-action".format($url, p)
                             to_build.append((dep_root, dep_session, dep_deps))
             popd > /dev/null
             if len(set(to_build)) < 1:
