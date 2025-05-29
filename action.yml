@@ -16,5 +16,5 @@ runs:
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - run: build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session_name }}" "${{ inputs.depends }}"
+    - run: ./build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session_name }}" "${{ inputs.depends }}"
       shell: bash
