@@ -1,213 +1,28 @@
-#!/usr/bin/env xonsh
+#!/usr/bin/env bash
+set -e
 
-$RAISE_SUBPROC_ERROR = True
+theory_root="${1:-$GITHUB_WORKSPACE}"
+session_name="${2:-$(basename "$GITHUB_REPOSITORY")}"
+depends="${3:-}"
 
-import json
-import argparse
-import yaml
-import re
-from os import listdir
-from os import path
-from sys import exit
-from datetime import datetime
+build_dir="$theory_root/.build_dependencies"
 
-p = argparse.ArgumentParser()
-p.add_argument('isabelle_url')
-p.add_argument('root_dir')
-p.add_argument('session_name')
-p.add_argument('dependencies')
-p.add_argument('report_url')
-p.add_argument('report_secret')
-p.add_argument('doc_dir')
-p.add_argument('--projname')
-a = p.parse_args()
+mkdir -p "$build_dir"
+> "$build_dir/ROOTS"
 
-thisprog = $ARG0
-$projname = $(basename $(pwd)).strip()
-if a.projname:
-    $projname = a.projname
-$projdir = a.projname or ''
-$isa_url = a.isabelle_url
-$rootdir = a.root_dir
-if $rootdir.strip() == '':
-    $rootdir = '.'
-$session = a.session_name
-deplist = a.dependencies
-build_ver = path.split($GITHUB_ACTION_PATH[0])[-1]
+# Clone each dependency
+for dep in $depends; do
+  repo_url="${dep%@*}"
+  repo_ref="${dep#*@}"
+  repo_name=$(basename "$repo_url" .git)
+  dest="$build_dir/$repo_name"
 
-$report_url = a.report_url
-$report_secret = a.report_secret
-    
-$doc_dir = a.doc_dir
+  git clone --depth 1 --branch "$repo_ref" "$repo_url" "$dest"
+  echo "$dest" >> "$build_dir/ROOTS"
+done
 
-session_was_blank = False
+# Add the current repo to ROOTS
+echo "$theory_root" >> "$build_dir/ROOTS"
 
-if $session == "":
-    session_was_blank = True
-    $session = $projname
-
-try:
-    if not path.isdir('Isabelle'):
-        mkdir Isabelle
-        echo "Fetching Isabelle from $isa_url"
-        wget -nv -O archive $isa_url
-        aunpack -q archive -X Isabelle
-        n = $(ls Isabelle | wc -l)
-        if int(n.strip()) == 1:
-            mv Isabelle isa_tmp
-            mv isa_tmp/* Isabelle
-        pushd Isabelle > /dev/null
-        sudo apt-get update
-        sudo apt-get install -y default-jdk haskell-stack
-        $ISABELLE_STACK = $(which stack)
-        $JAVA_HOME = $(dirname $(dirname $(readlink -f $(which javac))))
-        ./bin/isabelle components -I
-        ./bin/isabelle components -a
-        ./bin/isabelle ghc_setup
-        popd > /dev/null
-    pushd Isabelle > /dev/null
-    $isa_base=$(pwd).strip()
-    popd > /dev/null
-   
-    echo "Checking for dependencies..."
-    deplist = [a for a in re.split(r'[ \t]+', deplist) if a.strip() != '']
-    
-    if not deplist:
-        echo "No dependencies to fetch."
-    
-    for dep in deplist:
-        try:
-            ($url, $ref) = dep.split('@')
-        except:
-            echo "::error::Unable to parse dependency specification: @(dep), please use this format: <clone_url>@<ref>"
-            exit(1)
-        $clonedir = $url.split('/')[-1]
-        if $clonedir.endswith('.git'):
-            $clonedir = $clonedir[0:-4]
-        
-        if path.isdir($clonedir):
-            echo "Dependency already exists"
-        else:
-            echo "Cloning dependency: $url"
-            git clone -q --recurse-submodules -b "$ref" "$url" "$clonedir"
-            pushd "$clonedir" > /dev/null
-            wdir = ".github/workflows"
-            files = listdir(wdir)
-            to_build = []
-            print("::debug::Scanning dependency repo for configuration")
-            for file in files:
-                p = path.join(wdir, file)
-                print(f"::debug::Checking path {p}")
-                if path.isfile(p):
-                    print(f"::debug::Path {p} is a file, checking for config...")
-                    y = yaml.safe_load(open(p))
-                    for i, job in enumerate(y['jobs']):
-                        print(f"::debug::Scanning job {i}")
-                        steps = y['jobs'][job].get('steps', {})
-                        isabelle_steps = [s for s in steps if s.get('uses', '').startswith("cplaursen/isabelle-theory-build-github-action@")]
-                        for s in isabelle_steps:
-                            args = s.get('with', {})
-                            sargs = repr(args).replace('\n',' // ')
-                            print(f"::debug::Found config: {sargs}")
-                            dep_build_ver = s.get('uses').split('@')[-1]
-                            dep_isa_ver = args.get('isabelle-url', 'UNKOWN_URL')
-                            dep_session = args.get('session-name', $clonedir)
-                            dep_root = args.get('theory-root', '')
-                            dep_deps = args.get('depends', '')
-                            #if dep_isa_ver != $isa_url:
-                            #    continue
-                            if dep_build_ver != $build_ver:
-                                echo @(f"::warning file={env['url']}:{p}::Dependency is normally built using a different version of cplaursen/isabelle-theory-build-github-action")
-                            to_build.append((dep_root, dep_session, dep_deps))
-            popd > /dev/null
-            if len(set(to_build)) < 1:
-                print(f'::error::Unable to resolve dependency, is the build file missing for the dependency repo?: {dep}')
-                print('::warning::Build is continuing with missing dependencies, further errors might be expected.')
-            for $dep_root, $dep_session, $dep_deps in set(to_build):
-                echo "::notice::Building depndency: $dep_session"
-                $ARG0 $ARG1 $dep_root $dep_session $dep_deps '' '' '' $doc_dir --projname=$clonedir
-                echo "Finished building depndency: $dep_session"
-    
-    
-    echo "Adding project sources..."
-    echo ln -s "$GITHUB_WORKSPACE/$projdir" "$isa_base/src/$projname"
-    ln -s "$GITHUB_WORKSPACE/$projdir" "$isa_base/src/$projname"
-    pushd "$isa_base" > /dev/null
-    
-    rootlist = [a for a in re.split(r'[ \t]+', $rootdir) if a.strip() != '']
-    for $rootdir in rootlist:
-        echo "Adding root: src/$projname/$rootdir"
-        echo "src/$projname/$rootdir" >> ROOTS
-    final_result = 2
-    try:
-        sessions = [a for a in re.split(r'[ \t]+', $session) if a.strip() != '']
-        if not sessions:
-            echo "::error::No sesssions were built, check your session-name input lists some sessions to build."
-            final_result = 1
-        else:
-            for $session in sessions:
-                echo "::notice::Building session: $session"
-                if a.doc_dir != "":
-                    echo "building with: isabelle build -P \"$doc_dir\" -b \"$session\""
-                    ./bin/isabelle build -P "$doc_dir" -b "$session"
-                    final_result = 0
-                else:
-                    echo "building with: isabelle build -b \"$session\""
-                    ./bin/isabelle build -b "$session"
-                    final_result = 0
-    except Exception as e:
-        echo "::error::Build failed: @(str(e))"
-        final_result = 1
-    popd > /dev/null
-except Exception as e:
-    final_result = 1
-    echo "::error::Build failed in an unexpected way: @(str(e))"
-    print(e)
-
-if $report_url != '':
-    yamlfile = None
-    wdir = f"{$GITHUB_WORKSPACE}/.github/workflows"
-    files = listdir(wdir)
-    to_build = []
-    for file in files:
-        p = path.join(wdir, file)
-        if path.isfile(p):
-            y = yaml.safe_load(open(p))
-            for job in y['jobs']:
-                steps = y['jobs'][job].get('steps', {})
-                isabelle_steps = [s for s in steps if s.get('uses', '').startswith("cplaursen/isabelle-theory-build-github-action@")]
-                for s in isabelle_steps:
-                    args = s.get('with', {})
-                    this_isa_ver = args.get('isabelle-url')
-                    if this_isa_ver != $isa_url:
-                        continue
-                    this_session = args.get('session-name')
-                    if (this_session != a.session_name) and (not (session_was_blank and (this_session is None))):
-                        continue
-                    yamlfile = p
-                    break
-                if yamlfile is not None:
-                    break;
-            if yamlfile is not None:
-                break;
-    print(yamlfile)
-    yamltext = '{"error":"Unable to find config file"}'
-    if yamlfile is not None:
-        yamltext = open(yamlfile).read()
-    
-    $topost=json.dumps({
-        'reponame':$GITHUB_REPOSITORY,
-        'datetime':datetime.now().isoformat(),
-        'result':str(final_result),
-        'config':yamltext,
-    })
-    
-    $tempfile = f'$GITHUB_WORKSPACE/tempreportfile'
-    open($tempfile, 'w+').write($topost)
-    try:
-        cat $tempfile | signed_post.py $report_url $report_secret
-    except Exception as e:
-        print("::warning::Failed to report test results to dashboard service")
-        print(e)
-
-exit(final_result)
+# Run Isabelle build
+isabelle build -d "$build_dir" -d "$theory_root" -b "$session_name"

@@ -1,36 +1,24 @@
 name: 'Build Isabelle Theory'
-description: 'Build an Isabelle theory file. (In theory. In practice this falls over all the time because isabelle''s release process is awful and it''s impossible to make this work reliably and into the future.'
+description: 'Build an Isabelle theory file.'
 inputs:
-  isabelle-url:
-    description: 'Url for zip file of Isabelle linux release'
-    required: true
   theory-root:
     description: 'Path to the root of the theory. This defaults to the root of the repository.'
     default: ''
   session-name:
-    description: 'The session name to build (with isabelle build -b session-name). This defaults to the name of the repository. You can also list multiple sessions, separated by whitespace.'
+    description: 'The session name to build (with isabelle build -b session-name). This defaults to the name of the repository.'
     default: ''
   depends:
     description: 'A whitespace-separated list of other repositories containing sessions that are required to build the session in the current repository. Use url@ref syntax to specify a git ref.'
-    default: ''
-  report_url:
-    description: 'Url to submit a build report to'
-    default: ''
-  report_secret:
-    description: 'Secret to go along with report_url'
-    default: ''
-  doc_dir:
-    description: 'Directory to put documentation for build (with -P option to build)'
     default: ''
 
 runs:
   using: "composite"
   steps:
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
+    - name: Checkout repository
+      uses: actions/checkout@v3
     - run: sudo apt-get update -y
       shell: bash
     - run: sudo apt-get install -y xonsh python3-yaml atool texlive texlive-plain-generic texlive-science texlive-latex-extra
       shell: bash
-    - run: build_isabelle_theory "${{ inputs.isabelle-url}}" "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}" "${{ inputs.report_url }}" "${{ inputs.report_secret }}" "${{ inputs.doc_dir }}"
+    - run: build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session_name }}" "${{ inputs.depends }}"
       shell: bash
