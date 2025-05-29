@@ -25,11 +25,6 @@ runs:
         ls -la
       shell: bash
 
-    - name: Ensure build script is executable
-      run: chmod +x ./build_isabelle_theory
-      shell: bash
-      working-directory: ${{ github.workspace }}
-
     - name: Run build script
       run: ${{ github.action_path }}/build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
       shell: bash
