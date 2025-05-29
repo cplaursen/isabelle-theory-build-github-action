@@ -31,6 +31,6 @@ runs:
       working-directory: ${{ github.workspace }}
 
     - name: Run build script
-      run: ./build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
+      run: ${{ github.action_path }}/build_isabelle_theory "${{ inputs.theory-root }}" "${{ inputs.session-name }}" "${{ inputs.depends }}"
       shell: bash
       working-directory: ${{ github.workspace }}
